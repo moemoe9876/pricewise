@@ -60,6 +60,13 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("PriceWise")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: SettingsView()) {
+                        Image(systemName: "gear")
+                    }
+                }
+            }
             .sheet(isPresented: $isShowingImagePicker) {
                 ImagePicker(image: $selectedImage, sourceType: .photoLibrary)
             }
