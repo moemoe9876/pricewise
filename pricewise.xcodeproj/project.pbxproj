@@ -14,6 +14,12 @@
 		DDD9F0DE2D4136C400A0D0D6 /* pricewiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD9F0DD2D4136C400A0D0D6 /* pricewiseTests.swift */; };
 		DDD9F0E82D4136C400A0D0D6 /* pricewiseUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD9F0E72D4136C400A0D0D6 /* pricewiseUITests.swift */; };
 		DDD9F0EA2D4136C500A0D0D6 /* pricewiseUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD9F0E92D4136C500A0D0D6 /* pricewiseUITestsLaunchTests.swift */; };
+		DD419F692D417AFE001C9108 /* ItemDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD419F632D417AF8001C9102 /* ItemDetailsView.swift */; };
+		DD419F6A2D417AFF001C9109 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD419F642D417AF9001C9103 /* SettingsView.swift */; };
+		DD419F6B2D417B00001C9110 /* ItemAnalysisViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD419F652D417AFA001C9104 /* ItemAnalysisViewModel.swift */; };
+		DD419F6C2D417B01001C9111 /* ItemAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD419F662D417AFB001C9105 /* ItemAnalysis.swift */; };
+		DD419F6D2D417B02001C9112 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD419F672D417AFC001C9106 /* OpenAIService.swift */; };
+		DD419F6E2D417B03001C9113 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD419F682D417AFD001C9107 /* KeychainManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +51,12 @@
 		DDD9F0E32D4136C400A0D0D6 /* pricewiseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pricewiseUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDD9F0E72D4136C400A0D0D6 /* pricewiseUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pricewiseUITests.swift; sourceTree = "<group>"; };
 		DDD9F0E92D4136C500A0D0D6 /* pricewiseUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pricewiseUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		DD419F632D417AF8001C9102 /* ItemDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailsView.swift; sourceTree = "<group>"; };
+		DD419F642D417AF9001C9103 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		DD419F652D417AFA001C9104 /* ItemAnalysisViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemAnalysisViewModel.swift; sourceTree = "<group>"; };
+		DD419F662D417AFB001C9105 /* ItemAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemAnalysis.swift; sourceTree = "<group>"; };
+		DD419F672D417AFC001C9106 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
+		DD419F682D417AFD001C9107 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +110,11 @@
 				DD419F5D2D417AF2001C9096 /* Info.plist */,
 				DDD9F0CC2D4136C200A0D0D6 /* pricewiseApp.swift */,
 				DDD9F0CE2D4136C200A0D0D6 /* ContentView.swift */,
+				DD419F5E2D417AF3001C9097 /* Views */,
+				DD419F5F2D417AF4001C9098 /* ViewModels */,
+				DD419F602D417AF5001C9099 /* Models */,
+				DD419F612D417AF6001C9100 /* Services */,
+				DD419F622D417AF7001C9101 /* Utilities */,
 				DDD9F0D02D4136C400A0D0D6 /* Assets.xcassets */,
 				DDD9F0D22D4136C400A0D0D6 /* Preview Content */,
 			);
@@ -127,6 +144,47 @@
 				DDD9F0E92D4136C500A0D0D6 /* pricewiseUITestsLaunchTests.swift */,
 			);
 			path = pricewiseUITests;
+			sourceTree = "<group>";
+		};
+		DD419F5E2D417AF3001C9097 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DD419F632D417AF8001C9102 /* ItemDetailsView.swift */,
+				DD419F642D417AF9001C9103 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DD419F5F2D417AF4001C9098 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DD419F652D417AFA001C9104 /* ItemAnalysisViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DD419F602D417AF5001C9099 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DD419F662D417AFB001C9105 /* ItemAnalysis.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DD419F612D417AF6001C9100 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				DD419F672D417AFC001C9106 /* OpenAIService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DD419F622D417AF7001C9101 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				DD419F682D417AFD001C9107 /* KeychainManager.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -260,7 +318,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DDD9F0CF2D4136C200A0D0D6 /* ContentView.swift in Sources */,
-				DDD9F0CD2D4136C200A0D0D6 /* pricewiseApp.swift in Sources */,
+				DDD9F0CC2D4136C200A0D0D6 /* pricewiseApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

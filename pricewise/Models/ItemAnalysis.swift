@@ -63,4 +63,8 @@ enum AnalysisError: LocalizedError {
             return "Server error. Please try again later."
         }
     }
+}
+
+struct ItemAnalysis: Codable, Identifiable {
+    // Rest of the code...
 } 

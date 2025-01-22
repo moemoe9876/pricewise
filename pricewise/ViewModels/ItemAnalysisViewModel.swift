@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
+import UIKit
 
-@Observable
-class ItemAnalysisViewModel {
+@Observable final class ItemAnalysisViewModel {
     // MARK: - Properties
     private let openAIService = OpenAIService.shared
     

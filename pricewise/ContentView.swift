@@ -6,10 +6,17 @@
 //
 
 import SwiftUI
+import UIKit
+import PhotosUI
+
+// Import custom views and view models
+@_exported import struct pricewise.ItemDetailsView
+@_exported import struct pricewise.SettingsView
+@_exported import class pricewise.ItemAnalysisViewModel
 
 struct ContentView: View {
     // MARK: - State
-    @State private var viewModel = ItemAnalysisViewModel()
+    @StateObject private var viewModel = ItemAnalysisViewModel()
     @State private var isShowingImagePicker = false
     @State private var isShowingCamera = false
     @State private var showingAlert = false

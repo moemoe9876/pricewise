@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-actor OpenAIService {
+final class OpenAIService {
     static let shared = OpenAIService()
     private let baseURL = "https://api.openai.com/v1/chat/completions"
     private let keychainManager = KeychainManager.shared
