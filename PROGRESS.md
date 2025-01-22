@@ -18,14 +18,22 @@ PriceWise is an iOS application designed to help users determine the fair market
 - [x] Error handling for image picker
 - [x] Support for both camera and library source types
 
-### 🚧 In Progress
-
 #### Feature 2: Item Analysis (OpenAI Integration)
-- [ ] Secure API key storage setup
-- [ ] OpenAI GPT-4 Vision API integration
+- [x] Secure API key storage setup using Keychain
+- [x] Settings view for API key management
+- [x] Basic navigation structure
+- [x] OpenAI GPT-4o Vision API integration
 - [ ] Structured output parsing
 - [ ] Batch processing implementation
 - [ ] Error handling and retries
+
+### 🚧 In Progress
+
+#### Current Focus: OpenAI Integration
+- Implementing OpenAI API client
+- Setting up structured output parsing
+- Adding loading states and error handling
+- Implementing batch processing logic
 
 ### ⏳ Pending Features
 
@@ -67,8 +75,8 @@ PriceWise is an iOS application designed to help users determine the fair market
 ## 🎯 Next Steps
 
 1. **OpenAI Integration**
-   - Set up secure API key storage
-   - Implement basic API calls
+   - Create OpenAI API client
+   - Implement image analysis functionality
    - Add structured output parsing
    - Implement error handling
 
@@ -97,3 +105,6 @@ PriceWise is an iOS application designed to help users determine the fair market
 - Basic image capture and upload functionality implemented
 - Project structure organized
 - Git repository initialized and pushed to GitHub
+- Added secure API key storage using Keychain
+- Implemented Settings view for API key management
+- Added navigation structure for settings
