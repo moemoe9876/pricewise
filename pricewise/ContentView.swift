@@ -9,15 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
     // MARK: - State
-    @State private var selectedImage: UIImage?
+    @State private var viewModel = ItemAnalysisViewModel()
     @State private var isShowingImagePicker = false
     @State private var isShowingCamera = false
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
     // MARK: - Body
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                if let image = selectedImage {
+                if let image = viewModel.selectedImage {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
@@ -56,6 +58,22 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
                 
+                if viewModel.selectedImage != nil {
+                    Button(action: {
+                        Task {
+                            await viewModel.analyzeImage()
+                        }
+                    }) {
+                        Label("Analyze Item", systemImage: "sparkles")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding(.horizontal)
+                }
+                
                 Spacer()
             }
             .padding()
@@ -68,10 +86,37 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $isShowingImagePicker) {
-                ImagePicker(image: $selectedImage, sourceType: .photoLibrary)
+                ImagePicker(image: $viewModel.selectedImage, sourceType: .photoLibrary)
             }
             .sheet(isPresented: $isShowingCamera) {
-                ImagePicker(image: $selectedImage, sourceType: .camera)
+                ImagePicker(image: $viewModel.selectedImage, sourceType: .camera)
+            }
+            .sheet(
+                isPresented: .init(
+                    get: { viewModel.isAnalyzing || viewModel.analyzedItem != nil || viewModel.error != nil },
+                    set: { if !$0 { viewModel.reset() } }
+                )
+            ) {
+                NavigationView {
+                    ItemDetailsView(
+                        item: viewModel.analyzedItem,
+                        image: viewModel.selectedImage,
+                        isLoading: viewModel.isAnalyzing,
+                        error: viewModel.error,
+                        onRetry: {
+                            Task {
+                                await viewModel.analyzeImage()
+                            }
+                        }
+                    )
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") {
+                                viewModel.reset()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
