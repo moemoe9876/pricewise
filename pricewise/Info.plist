@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict/>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>PriceWise needs camera access to take photos of items for analysis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>PriceWise needs photo library access to select images of items for analysis.</string>
+</dict>
+</plist>
