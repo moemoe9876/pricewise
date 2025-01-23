@@ -8,6 +8,7 @@ struct BatchProcessingView: View {
     @State private var showingImagePicker = false
     @State private var showingResults = false
     @State private var processingProgress: Double = 0
+    @State private var failedItems: [String] = []
     
     var body: some View {
         NavigationView {
@@ -52,12 +53,24 @@ struct BatchProcessingView: View {
                     await loadSelectedImages(from: newValue)
                 }
             }
-            .fullScreenCover(isPresented: $showingResults) {
-                if !viewModel.analyzedItems.isEmpty {
-                    AnalysisResultsView(
+            .sheet(isPresented: $showingResults) {
+                NavigationView {
+                    BatchResultsSummaryView(
                         items: viewModel.analyzedItems,
-                        images: selectedImages
+                        failedItems: failedItems
                     )
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") {
+                                showingResults = false
+                                // Clear the state for next batch
+                                selectedImages.removeAll()
+                                selectedPhotos.removeAll()
+                                failedItems.removeAll()
+                                processingProgress = 0
+                            }
+                        }
+                    }
                 }
             }
             .alert("Error", isPresented: .constant(viewModel.error != nil)) {
@@ -74,20 +87,77 @@ struct BatchProcessingView: View {
         for item in selections {
             if let data = try? await item.loadTransferable(type: Data.self),
                let image = UIImage(data: data) {
+                // Compress image before adding
+                if let compressedImage = compressImage(image) {
+                    await MainActor.run {
+                        selectedImages.append(compressedImage)
+                    }
+                } else {
+                    await MainActor.run {
+                        failedItems.append("Failed to compress image")
+                    }
+                }
+            } else {
                 await MainActor.run {
-                    selectedImages.append(image)
+                    failedItems.append("Failed to load image")
                 }
             }
         }
     }
     
+    private func compressImage(_ image: UIImage) -> UIImage? {
+        let maxSize: CGFloat = 1024 // Maximum dimension size
+        let scale = min(maxSize/image.size.width, maxSize/image.size.height)
+        
+        if scale < 1 {
+            let newSize = CGSize(
+                width: image.size.width * scale,
+                height: image.size.height * scale
+            )
+            
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 0)
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+            let compressedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            
+            return compressedImage
+        }
+        
+        return image
+    }
+    
     private func processImages() {
         guard !selectedImages.isEmpty else { return }
         
+        // Reset state
+        failedItems.removeAll()
+        processingProgress = 0
+        
         Task {
-            await viewModel.analyzeImages(selectedImages)
+            // Process images in batches of 5
+            let batchSize = 5
+            let totalBatches = Int(ceil(Double(selectedImages.count) / Double(batchSize)))
+            
+            for batchIndex in 0..<totalBatches {
+                let start = batchIndex * batchSize
+                let end = min(start + batchSize, selectedImages.count)
+                let batch = Array(selectedImages[start..<end])
+                
+                do {
+                    try await viewModel.analyzeImages(batch)
+                } catch {
+                    for _ in batch {
+                        failedItems.append("Failed to analyze image: \(error.localizedDescription)")
+                    }
+                }
+                
+                await MainActor.run {
+                    processingProgress = Double(end) / Double(selectedImages.count)
+                }
+            }
+            
             await MainActor.run {
-                showingResults = viewModel.showResults
+                showingResults = true
             }
         }
     }

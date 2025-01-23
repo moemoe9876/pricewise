@@ -6,6 +6,10 @@ enum KeychainError: Error {
     case unknown(OSStatus)
     case itemNotFound
     case invalidData
+    case saveFailed(OSStatus)
+    case updateFailed(OSStatus)
+    case notFound
+    case deleteFailed(OSStatus)
 }
 
 enum KeychainKeys {
@@ -20,10 +24,7 @@ class KeychainManager {
     
     // MARK: - API Key Management
     func saveAPIKey(_ key: String, service: String) throws {
-        guard let data = key.data(using: .utf8) else {
-            throw KeychainError.invalidData
-        }
-        
+        let data = key.data(using: .utf8)!
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -31,25 +32,26 @@ class KeychainManager {
         ]
         
         let status = SecItemAdd(query as CFDictionary, nil)
-        
         if status == errSecDuplicateItem {
-            // Item already exists, update it
-            let updateQuery: [String: Any] = [
-                kSecClass as String: kSecClassGenericPassword,
-                kSecAttrService as String: service
-            ]
-            
-            let attributes: [String: Any] = [
-                kSecValueData as String: data
-            ]
-            
-            let updateStatus = SecItemUpdate(updateQuery as CFDictionary, attributes as CFDictionary)
-            
-            guard updateStatus == errSecSuccess else {
-                throw KeychainError.unknown(updateStatus)
-            }
+            try updateAPIKey(key, service: service)
         } else if status != errSecSuccess {
-            throw KeychainError.unknown(status)
+            throw KeychainError.saveFailed(status)
+        }
+    }
+    
+    func updateAPIKey(_ key: String, service: String) throws {
+        let data = key.data(using: .utf8)!
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service
+        ]
+        let attributes: [String: Any] = [
+            kSecValueData as String: data
+        ]
+        
+        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        guard status == errSecSuccess else {
+            throw KeychainError.updateFailed(status)
         }
     }
     
@@ -63,13 +65,10 @@ class KeychainManager {
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         
-        guard status == errSecSuccess else {
-            throw KeychainError.itemNotFound
-        }
-        
-        guard let data = result as? Data,
+        guard status == errSecSuccess,
+              let data = result as? Data,
               let key = String(data: data, encoding: .utf8) else {
-            throw KeychainError.invalidData
+            throw KeychainError.notFound
         }
         
         return key
@@ -82,9 +81,8 @@ class KeychainManager {
         ]
         
         let status = SecItemDelete(query as CFDictionary)
-        
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            throw KeychainError.unknown(status)
+            throw KeychainError.deleteFailed(status)
         }
     }
     

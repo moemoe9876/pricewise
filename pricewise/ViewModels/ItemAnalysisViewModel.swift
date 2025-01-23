@@ -1,43 +1,44 @@
 import Foundation
 import SwiftUI
-import UIKit
 
-@Observable final class ItemAnalysisViewModel {
-    // MARK: - Properties
-    private let openAIService = OpenAIService.shared
-    
-    var selectedImage: UIImage?
-    var analyzedItems: [ItemDetails] = []
+@Observable
+final class ItemAnalysisViewModel {
     var isAnalyzing = false
-    var error: AnalysisError?
-    var showResults = false
+    var analysisError: Error?
+    var itemDetails: ItemDetails?
+    var selectedImage: UIImage?
     
-    // MARK: - Analysis
-    func analyzeImages(_ images: [UIImage]) async {
-        guard !images.isEmpty else { return }
-        
-        isAnalyzing = true
-        error = nil
-        analyzedItems = []
-        
-        do {
-            analyzedItems = try await openAIService.analyzeImages(images)
-            showResults = true
-        } catch let analysisError as AnalysisError {
-            error = analysisError
-        } catch {
-            self.error = .networkError(error)
-        }
-        
-        isAnalyzing = false
+    private let openAIService: OpenAIService
+    
+    init(openAIService: OpenAIService = OpenAIService.shared) {
+        self.openAIService = openAIService
     }
     
-    // MARK: - Reset
+    func analyzeImage(_ image: UIImage) async {
+        guard !isAnalyzing else { return }
+        
+        isAnalyzing = true
+        analysisError = nil
+        
+        do {
+            let details = try await openAIService.analyzeImage(image)
+            await MainActor.run {
+                self.itemDetails = details
+                self.selectedImage = image
+                self.isAnalyzing = false
+            }
+        } catch {
+            await MainActor.run {
+                self.analysisError = error
+                self.isAnalyzing = false
+            }
+        }
+    }
+    
     func reset() {
-        selectedImage = nil
-        analyzedItems = []
-        error = nil
         isAnalyzing = false
-        showResults = false
+        analysisError = nil
+        itemDetails = nil
+        selectedImage = nil
     }
 } 

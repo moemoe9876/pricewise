@@ -1,200 +1,258 @@
 import SwiftUI
 
 struct ItemDetailsView: View {
-    // MARK: - Properties
-    @ObservedObject var viewModel: ItemAnalysisViewModel
-    let item: ItemDetails
-    @State private var isEditing = false
-    @State private var showingError = false
-    @State private var errorMessage = ""
+    @State var viewModel: ItemAnalysisViewModel
+    @Environment(\.dismiss) private var dismiss
     
-    // Add state variables for editing
-    @State private var editedBrand: String = ""
-    @State private var editedProductName: String = ""
-    @State private var editedCondition: String = ""
-    @State private var editedSizes: String = ""
-    @State private var editedBarcode: String = ""
-    
-    // MARK: - Body
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Image Section
-                if let image = item.image {
+            VStack(spacing: 20) {
+                if let image = viewModel.selectedImage {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxHeight: 200)
+                        .scaledToFit()
+                        .frame(maxHeight: 300)
                         .cornerRadius(12)
                 }
                 
-                // Item Details Section
-                GroupBox(label: Text("Item Details").font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        if isEditing {
-                            EditableDetailRow(label: "Brand", value: $editedBrand)
-                            EditableDetailRow(label: "Product", value: $editedProductName)
-                            ConditionPicker(selectedCondition: $editedCondition)
-                            EditableDetailRow(label: "Sizes", value: $editedSizes, placeholder: "Comma-separated sizes")
-                            EditableDetailRow(label: "Barcode", value: $editedBarcode)
-                        } else {
-                            DetailRow(label: "Brand", value: item.metadata.brand)
-                            if let productName = item.metadata.product_name {
-                                DetailRow(label: "Product", value: productName)
-                            }
-                            if let condition = item.metadata.condition {
-                                DetailRow(label: "Condition", value: condition.capitalized)
-                            }
-                            if let sizes = item.metadata.sizes, !sizes.isEmpty {
-                                DetailRow(label: "Sizes", value: sizes.joined(separator: ", "))
-                            }
-                            if let barcode = item.metadata.barcode {
-                                DetailRow(label: "Barcode", value: barcode)
+                if let details = viewModel.itemDetails {
+                    ItemDetailsCard(details: details)
+                } else if viewModel.isAnalyzing {
+                    ProgressView("Analyzing image...")
+                } else if let error = viewModel.analysisError {
+                    ErrorView(error: error) {
+                        // Retry button action
+                        if let image = viewModel.selectedImage {
+                            Task {
+                                await viewModel.analyzeImage(image)
                             }
                         }
                     }
-                    .padding(.vertical, 8)
-                }
-                
-                // Market Value Section
-                GroupBox(label: Text("Market Value").font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        if let marketValue = item.market_value {
-                            Text("$\(String(format: "%.2f", marketValue))")
-                                .font(.title2)
-                                .foregroundColor(.green)
-                        } else {
-                            HStack {
-                                Text("Pending...")
-                                    .foregroundColor(.secondary)
-                                ProgressView()
-                            }
-                        }
-                        
-                        Button(action: recalculateMarketValue) {
-                            HStack {
-                                Image(systemName: "arrow.clockwise")
-                                Text("Recalculate Value")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(viewModel.isLoading)
-                    }
-                    .padding(.vertical, 8)
                 }
             }
             .padding()
         }
         .navigationTitle("Item Details")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(isEditing ? "Done" : "Edit") {
-                    if isEditing {
-                        saveChanges()
-                    }
-                    isEditing.toggle()
-                    if isEditing {
-                        // Initialize editing values when entering edit mode
-                        editedBrand = item.metadata.brand
-                        editedProductName = item.metadata.product_name ?? ""
-                        editedCondition = item.metadata.condition ?? "good"
-                        editedSizes = item.metadata.sizes?.joined(separator: ", ") ?? ""
-                        editedBarcode = item.metadata.barcode ?? ""
-                    }
+                Button("Done") {
+                    dismiss()
                 }
             }
         }
-        .alert("Error", isPresented: $showingError) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(errorMessage)
+    }
+}
+
+struct ItemDetailsCard: View {
+    let details: ItemDetails
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Brand and Product
+            VStack(alignment: .leading, spacing: 8) {
+                Text(details.brand)
+                    .font(.title2)
+                    .bold()
+                
+                if let productName = details.product_name {
+                    Text(productName)
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // Condition
+            if let condition = details.condition {
+                HStack {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                    Text("Condition: \(condition.capitalized)")
+                        .font(.subheadline)
+                }
+            }
+            
+            // Sizes
+            if let sizes = details.sizes, !sizes.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Available Sizes")
+                        .font(.headline)
+                    
+                    FlowLayout(spacing: 8) {
+                        ForEach(sizes, id: \.self) { size in
+                            Text(size)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                    }
+                }
+            }
+            
+            // Market Value
+            if let marketValue = details.market_value {
+                HStack {
+                    Image(systemName: "dollarsign.circle.fill")
+                        .foregroundColor(.green)
+                    Text("Estimated Value:")
+                        .font(.headline)
+                    Text(String(format: "$%.2f", marketValue))
+                        .font(.title3)
+                        .bold()
+                        .foregroundColor(.green)
+                }
+            }
+            
+            // Analysis Date
+            Text("Analyzed on \(formatDate(details.date_analyzed))")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
     }
     
-    // MARK: - Actions
-    private func recalculateMarketValue() {
-        // This will be implemented when we integrate the Tavily API
-        // For now, just show a placeholder error
-        showingError = true
-        errorMessage = "Market value recalculation will be available in the next update."
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
+}
+
+struct ErrorView: View {
+    let error: Error
+    let retryAction: () -> Void
     
-    // Add these new functions after the existing recalculateMarketValue function
-    private func saveChanges() {
-        // Validate required fields
-        guard !editedBrand.isEmpty else {
-            showingError = true
-            errorMessage = "Brand name is required"
-            return
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.largeTitle)
+                .foregroundColor(.red)
+            
+            Text("Analysis Failed")
+                .font(.headline)
+            
+            Text(error.localizedDescription)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Button(action: retryAction) {
+                HStack {
+                    Image(systemName: "arrow.clockwise")
+                    Text("Retry")
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
         }
-        
-        // Create new metadata
-        let sizes = editedSizes.isEmpty ? nil : editedSizes.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
-        let newMetadata = ItemDetails.Metadata(
-            brand: editedBrand,
-            product_name: editedProductName.isEmpty ? nil : editedProductName,
-            barcode: editedBarcode.isEmpty ? nil : editedBarcode,
-            condition: editedCondition.isEmpty ? nil : editedCondition,
-            sizes: sizes
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
+    }
+}
+
+struct FlowLayout: Layout {
+    var spacing: CGFloat
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = arrangeSubviews(proposal: proposal, subviews: subviews)
+        return CGSize(
+            width: proposal.width ?? .infinity,
+            height: rows.last?.maxY ?? 0
         )
-        
-        // Update the item through the view model
-        viewModel.updateItemMetadata(for: item.id, metadata: newMetadata)
     }
-}
-
-// Add these new supporting views after the existing DetailRow view
-struct EditableDetailRow: View {
-    let label: String
-    @Binding var value: String
-    var placeholder: String = ""
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            TextField(placeholder.isEmpty ? label : placeholder, text: $value)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let rows = arrangeSubviews(proposal: proposal, subviews: subviews)
+        
+        for row in rows {
+            let rowXOffset = (bounds.width - row.width) / 2
+            for element in row.elements {
+                element.view.place(
+                    at: CGPoint(
+                        x: element.x + rowXOffset + bounds.minX,
+                        y: row.y + bounds.minY
+                    ),
+                    proposal: ProposedViewSize(element.size)
+                )
+            }
         }
     }
-}
-
-struct ConditionPicker: View {
-    @Binding var selectedCondition: String
-    let conditions = ["new", "like_new", "good", "fair", "poor"]
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Condition")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Picker("Condition", selection: $selectedCondition) {
-                ForEach(conditions, id: \.self) { condition in
-                    Text(condition.capitalized).tag(condition)
-                }
+    private func arrangeSubviews(proposal: ProposedViewSize, subviews: Subviews) -> [Row] {
+        var rows: [Row] = []
+        var currentRow = Row(y: 0)
+        var x: CGFloat = 0
+        let maxWidth = proposal.width ?? .infinity
+        
+        for subview in subviews {
+            let size = subview.sizeThatFits(ProposedViewSize(width: maxWidth, height: nil))
+            
+            if x + size.width > maxWidth {
+                rows.append(currentRow)
+                currentRow = Row(y: currentRow.maxY + spacing)
+                x = 0
             }
-            .pickerStyle(MenuPickerStyle())
+            
+            currentRow.add(view: subview, size: size, x: x)
+            x += size.width + spacing
+        }
+        
+        if !currentRow.elements.isEmpty {
+            rows.append(currentRow)
+        }
+        
+        return rows
+    }
+    
+    private struct Row {
+        var elements: [(view: LayoutSubview, size: CGSize, x: CGFloat)] = []
+        var y: CGFloat
+        
+        var width: CGFloat {
+            guard let last = elements.last else { return 0 }
+            return last.x + last.size.width
+        }
+        
+        var height: CGFloat {
+            elements.map(\.size.height).max() ?? 0
+        }
+        
+        var maxY: CGFloat {
+            y + height
+        }
+        
+        mutating func add(view: LayoutSubview, size: CGSize, x: CGFloat) {
+            elements.append((view, size, x))
         }
     }
 }
 
 // MARK: - Preview
-struct ItemDetailsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ItemDetailsView(
-                viewModel: ItemAnalysisViewModel(),
-                item: ItemDetails(
+#Preview {
+    NavigationView {
+        ItemDetailsView(
+            viewModel: {
+                let vm = ItemAnalysisViewModel()
+                vm.itemDetails = ItemDetails(
                     brand: "Nike",
                     product_name: "Air Max 270",
                     condition: "good",
-                    sizes: ["10", "10.5"],
-                    market_value: 129.99,
-                    image: nil
+                    barcode: nil,
+                    sizes: ["US 9", "US 10"],
+                    market_value: 120.00,
+                    estimated_value: 115.00
                 )
-            )
-        }
+                return vm
+            }()
+        )
     }
 }
