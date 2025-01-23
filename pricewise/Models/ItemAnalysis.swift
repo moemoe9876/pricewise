@@ -1,20 +1,24 @@
 import Foundation
+import UIKit
 
 // MARK: - Item Details
 struct ItemDetails: Codable, Identifiable {
-    var id: UUID = UUID()
-    var metadata: Metadata
-    var market_value: Double?
-    var date_analyzed: Date = Date()
-    var image_url: String?
+    let id = UUID()
+    let brand: String
+    let productName: String
+    let condition: String
+    let barcode: String?
+    let sizes: [String]?
+    let estimatedValue: Double
     var image: UIImage?
     
-    struct Metadata: Codable {
-        var brand: String
-        var product_name: String?
-        var barcode: String?
-        var condition: ItemCondition?
-        var sizes: [String]?
+    enum CodingKeys: String, CodingKey {
+        case brand
+        case productName
+        case condition
+        case barcode
+        case sizes
+        case estimatedValue
     }
 }
 
@@ -66,5 +70,15 @@ enum AnalysisError: LocalizedError {
 }
 
 struct ItemAnalysis: Codable, Identifiable {
-    // Rest of the code...
+    let id = UUID()
+    let details: ItemDetails
+    let timestamp: Date
+    let imageData: Data?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case details
+        case timestamp
+        case imageData
+    }
 } 

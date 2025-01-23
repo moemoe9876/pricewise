@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct ItemDetailsView: View {
     let item: ItemDetails?
@@ -22,72 +21,52 @@ struct ItemDetailsView: View {
                 
                 // Loading State
                 if isLoading {
-                    VStack(spacing: 10) {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                        Text("Analyzing image...")
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 100)
+                    ProgressView("Analyzing...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
                 // Error State
-                else if let error = error {
-                    VStack(spacing: 15) {
+                if let error = error {
+                    VStack(spacing: 10) {
                         Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 40))
+                            .font(.largeTitle)
                             .foregroundColor(.red)
                         
                         Text(error.localizedDescription)
                             .multilineTextAlignment(.center)
-                            .foregroundColor(.secondary)
                         
                         if let onRetry = onRetry {
-                            Button(action: onRetry) {
-                                Label("Retry Analysis", systemImage: "arrow.clockwise")
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .cornerRadius(10)
-                            }
+                            Button("Try Again", action: onRetry)
+                                .buttonStyle(.bordered)
                         }
                     }
                     .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.red.opacity(0.1))
-                    .cornerRadius(10)
                 }
                 
                 // Results
-                else if let item = item {
-                    // Metadata Section
+                if let item = item {
                     VStack(alignment: .leading, spacing: 15) {
-                        MetadataRow(title: "Brand", value: item.metadata.brand)
-                        
-                        if let productName = item.metadata.product_name {
-                            MetadataRow(title: "Product", value: productName)
+                        Group {
+                            InfoRow(title: "Brand", value: item.brand)
+                            InfoRow(title: "Product", value: item.productName)
+                            InfoRow(title: "Condition", value: item.condition)
+                            
+                            if let barcode = item.barcode {
+                                InfoRow(title: "Barcode", value: barcode)
+                            }
+                            
+                            if let sizes = item.sizes, !sizes.isEmpty {
+                                InfoRow(title: "Sizes", value: sizes.joined(separator: ", "))
+                            }
+                            
+                            InfoRow(title: "Estimated Value", value: String(format: "$%.2f", item.estimatedValue))
                         }
-                        
-                        if let condition = item.metadata.condition?.rawValue.capitalized {
-                            MetadataRow(title: "Condition", value: condition)
-                        }
-                        
-                        if let barcode = item.metadata.barcode {
-                            MetadataRow(title: "Barcode", value: barcode)
-                        }
-                        
-                        if let sizes = item.metadata.sizes, !sizes.isEmpty {
-                            MetadataRow(title: "Sizes", value: sizes.joined(separator: ", "))
-                        }
-                        
-                        if let marketValue = item.market_value {
-                            MetadataRow(title: "Estimated Value", value: String(format: "$%.2f", marketValue))
-                                .foregroundColor(.green)
-                        }
+                        .padding(.horizontal)
                     }
-                    .padding()
-                    .background(Color.secondary.opacity(0.1))
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.systemBackground))
                     .cornerRadius(10)
+                    .shadow(radius: 2)
                 }
             }
             .padding()
@@ -96,13 +75,12 @@ struct ItemDetailsView: View {
     }
 }
 
-// MARK: - Supporting Views
-struct MetadataRow: View {
+struct InfoRow: View {
     let title: String
     let value: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -116,14 +94,13 @@ struct MetadataRow: View {
     NavigationView {
         ItemDetailsView(
             item: ItemDetails(
-                metadata: ItemDetails.Metadata(
-                    brand: "Nike",
-                    product_name: "Air Max 270",
-                    barcode: "123456789",
-                    condition: .good,
-                    sizes: ["US 10", "EU 44"]
-                ),
-                market_value: 129.99
+                brand: "Nike",
+                productName: "Air Max 90",
+                condition: "Good",
+                barcode: "123456789",
+                sizes: ["US 9", "US 10"],
+                estimatedValue: 129.99,
+                image: nil
             ),
             image: nil,
             isLoading: false,

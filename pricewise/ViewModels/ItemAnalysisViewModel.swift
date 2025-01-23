@@ -7,19 +7,22 @@ import UIKit
     private let openAIService = OpenAIService.shared
     
     var selectedImage: UIImage?
-    var analyzedItem: ItemDetails?
+    var analyzedItems: [ItemDetails] = []
     var isAnalyzing = false
     var error: AnalysisError?
+    var showResults = false
     
     // MARK: - Analysis
-    func analyzeImage() async {
-        guard let image = selectedImage else { return }
+    func analyzeImages(_ images: [UIImage]) async {
+        guard !images.isEmpty else { return }
         
         isAnalyzing = true
         error = nil
+        analyzedItems = []
         
         do {
-            analyzedItem = try await openAIService.analyzeImage(image)
+            analyzedItems = try await openAIService.analyzeImages(images)
+            showResults = true
         } catch let analysisError as AnalysisError {
             error = analysisError
         } catch {
@@ -27,33 +30,14 @@ import UIKit
         }
         
         isAnalyzing = false
-    }
-    
-    // MARK: - Batch Analysis
-    func analyzeImages(_ images: [UIImage]) async -> [ItemDetails] {
-        isAnalyzing = true
-        error = nil
-        
-        do {
-            let results = try await openAIService.analyzeImages(images)
-            isAnalyzing = false
-            return results
-        } catch let analysisError as AnalysisError {
-            error = analysisError
-            isAnalyzing = false
-            return []
-        } catch {
-            self.error = .networkError(error)
-            isAnalyzing = false
-            return []
-        }
     }
     
     // MARK: - Reset
     func reset() {
         selectedImage = nil
-        analyzedItem = nil
+        analyzedItems = []
         error = nil
         isAnalyzing = false
+        showResults = false
     }
 } 

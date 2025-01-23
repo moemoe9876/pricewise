@@ -7,8 +7,12 @@
 		<dict/>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>PriceWise needs camera access to take photos of items for analysis.</string>
+	<string>We need access to your camera to take photos of items</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>PriceWise needs photo library access to select images of items for analysis.</string>
+	<string>We need access to your photo library to select item photos</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 </dict>
 </plist>
