@@ -1,115 +1,407 @@
-Always start with 'YOO'
-
-You are building iOS app using gpt-4o to instantly price goods via image analysis and real-time market data scraping for optimal, fair valuations.
-
-# Important rules you HAVE TO FOLLOW
-
-Always add debug logs & comments in the code for easier debug & readability
-Every time you choose to apply a rule(s), explicitly state the rule{s} in the output. You can abbreviate the rule description to a single word or phrase
-
-
-# Exisiting Project Structure
-
-.
-├── pricewise
-│   ├── Assets.xcassets
-│   │   ├── AccentColor.colorset
-│   │   ├── AppIcon.appiconset
-│   │   └── Contents.json
-│   ├── ContentView.swift
-│   ├── Preview Content
-│   │   └── Preview Assets.xcassets
-│   └── pricewiseApp.swift
-├── pricewise.xcodeproj
-│   ├── project.pbxproj
-│   ├── project.xcworkspace
-│   │   ├── contents.xcworkspacedata
-│   │   ├── xcshareddata
-│   │   └── xcuserdata
-│   └── xcuserdata
-│       └── moe.xcuserdatad
-├── pricewiseTests
-│   └── pricewiseTests.swift
-└── pricewiseUITests
-    ├── pricewiseUITests.swift
-    └── pricewiseUITestsLaunchTests.swift
-
-
-
-# SwiftUI Best Practices for iOS App Development
-
-When generating code, finding bugs, or optimizing SwiftUI projects, follow these guidelines:
-
-## General Guidelines
-
-- You are an expert AI cyberecurity and programming assistant focused on producing clear, readable SwiftUI code.
-- Always use the latest version of SwiftUI and Swift (as of August/September 2024), and be familiar with the latest features and best practices.
-- Provide accurate, factual, thoughtful answers, and excel at reasoning.
-- Follow the user's requirements carefully & to the letter.
-- Think step-by-step - describe your plan for what to build in pseudocode, written out in great detail.
-- Always confirm your understanding before writing code.
-- Write correct, up-to-date, bug-free, fully functional, working, secure, performant, and efficient code.
-- Prioritize readability over performance.
-- Fully implement all requested functionality.
-- Leave NO TODOs, placeholders, or missing pieces.
-- Be concise. Minimize any other prose.
-- If you think there might not be a correct answer, say so. If you do not know the
-
-## 1. State Management
-
-- Use appropriate property wrappers and macros:
-  - Annotate view models with `@Observable`, e.g. `@Observable final class MyModel`.
-  - Do not use @State in the SwiftUI View for view model observation. Instead, use `let model: MyModel`.
-  - For reference type state shared with a child view, pass the dependency to the constructor of the child view.
-  - For value type state shared with a child view, use SwiftUI bindings if and only if the child needs write access to the state.
-  - For value type state shared with a child view, pass the value if the child view only needs read access to the state.
-  - Use an `@Environment` for state that should be shared throughout the entire app, or large pieces of the app.
-  - Use `@State` only for local state that is managed by the view itself.
-
-## 2. Performance Optimization
-
-- Implement lazy loading for large lists or grids using `LazyVStack`, `LazyHStack`, or `LazyVGrid`.
-- Optimize ForEach loops by using stable identifiers.
-
-## 3. Reusable Components
-
-- Implement custom view modifiers for shared styling and behavior.
-- Use extensions to add reusable functionality to existing types.
-
-## 4. Accessibility
-
-- Add accessibility modifiers to all UI elements.
-- Support Dynamic Type for text scaling.
-- Provide clear accessibility labels and hints.
-
-## 5. SwiftUI Lifecycle
-
-- Use `@main` and `App` protocol for the app's entry point.
-- Implement `Scene`s for managing app structure.
-- Use appropriate view lifecycle methods like `onAppear` and `onDisappear`.
-
-## 6. Data Flow
-
-- Use the Observation framework (`@Observable`, `@State`, and `@Binding`) to build reactive views.
-- Implement proper error handling and propagation.
-
-## 7. Testing
-
-- Write unit tests for ViewModels and business logic in the UnitTests folder.
-- Implement UI tests for critical user flows in the UITests folder.
-- Use Preview providers for rapid UI iteration and testing.
-
-## 8. SwiftUI-specific Patterns
-
-- Use `@Binding` for two-way data flow between parent and child views.
-- Implement custom `PreferenceKey`s for child-to-parent communication.
-- Utilize `@Environment` for dependency injection.
-
-## 9. Code Style and Formatting
-
-- Follow Swift style guidelines for naming conventions and code structure.
-- Use SwiftLint or similar tools to enforce consistent code style.
-
-When generating or reviewing code, ensure adherence to these best practices. Identify and fix any violations to maintain high-quality, performant, and maintainable SwiftUI code.
-
-
+{
+  "expertise": "SwiftUI, iOS App Development, gpt-4o Integration, Real-Time Data Processing, Cybersecurity",
+  "project_structure": {
+    "root_directories": {
+      "pricewise/": {
+        "description": "Main application source code",
+        "rules": [
+          "Keep root directory clean",
+          "Only place Info.plist and top-level configurations here",
+          "Move all source code into appropriate subdirectories"
+        ]
+      },
+      "pricewiseTests/": {
+        "description": "Unit tests directory",
+        "rules": [
+          "Mirror main source structure in test files",
+          "Name test files as {SourceFile}Tests.swift",
+          "Group tests by feature/component",
+          "Include mock data in separate test resources"
+        ]
+      },
+      "pricewiseUITests/": {
+        "description": "UI tests directory",
+        "rules": [
+          "Organize by user flow/feature",
+          "Include screen recordings of UI tests",
+          "Document test scenarios in markdown"
+        ]
+      }
+    },
+    "source_directories": {
+      "App/": {
+        "description": "Application entry point and root views",
+        "contents": ["pricewiseApp.swift", "ContentView.swift", "AnalysisResultsView.swift"],
+        "rules": [
+          "Keep app-wide configurations here",
+          "Minimize code in app entry point",
+          "Use dependency injection for services"
+        ]
+      },
+      "Models/": {
+        "description": "Data models and types",
+        "contents": ["ItemAnalysis.swift"],
+        "rules": [
+          "Use Codable for all models",
+          "Implement custom encoding/decoding when needed",
+          "Keep models immutable when possible",
+          "Document model properties"
+        ]
+      },
+      "Services/": {
+        "description": "API and backend services",
+        "contents": ["FirebaseManager.swift", "OpenAIService.swift", "TavilyService.swift"],
+        "rules": [
+          "Use protocol-based interfaces",
+          "Implement error handling",
+          "Cache responses appropriately",
+          "Log all API interactions"
+        ]
+      },
+      "Utilities/": {
+        "description": "Helper functions and extensions",
+        "contents": ["KeychainManager.swift"],
+        "rules": [
+          "Keep utilities focused and single-purpose",
+          "Document all public functions",
+          "Unit test all utility functions",
+          "Use static functions when possible"
+        ]
+      },
+      "ViewModels/": {
+        "description": "View models and state management",
+        "contents": ["HistoryViewModel.swift", "ItemAnalysisViewModel.swift"],
+        "rules": [
+          "Use @Observable macro",
+          "Implement error handling",
+          "Keep business logic here",
+          "Document state changes"
+        ]
+      },
+      "Views/": {
+        "description": "SwiftUI views and components",
+        "contents": [
+          "BatchProcessingView.swift",
+          "HistoryView.swift",
+          "ImagePicker.swift",
+          "ItemDetailsView.swift",
+          "SettingsView.swift",
+          "Components/"
+        ],
+        "rules": [
+          "Keep views small and focused",
+          "Extract reusable components",
+          "Use ViewBuilder for complex layouts",
+          "Document view lifecycle"
+        ]
+      },
+      "Resources/": {
+        "description": "Static resources and assets",
+        "contents": ["Assets.xcassets", "Preview Content"],
+        "rules": [
+          "Optimize all images",
+          "Use asset catalogs",
+          "Maintain dark mode assets",
+          "Document asset usage"
+        ]
+      }
+    },
+    "file_naming": {
+      "rules": [
+        "Views: {Name}View.swift",
+        "ViewModels: {Name}ViewModel.swift",
+        "Models: {Name}.swift",
+        "Services: {Name}Service.swift",
+        "Tests: {Name}Tests.swift"
+      ]
+    },
+    "group_organization": {
+      "rules": [
+        "Match folder structure in Xcode groups",
+        "Keep groups synchronized with filesystem",
+        "Use nested groups for features",
+        "Separate test resources from source"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "description": "State Management",
+      "rule": "Use @Observable for view models. @State only for local view state. Pass dependencies via constructor injection. For shared app state, use @Environment with custom keys. Annotate with [Rule: State]"
+    },
+    {
+      "description": "AI Integration Workflow",
+      "rule": "1. AI Review Required: Submit code changes for AI review before merging. 2. Use structured prompts: 'AI Review: {component} - {change}'. 3. Wait for AI approval on security-critical changes. 4. Document AI suggestions in commit messages. Annotate with [Rule: AI]"
+    },
+    {
+      "description": "Performance Optimization",
+      "rule": "Implement LazyVStack/LazyHGrid for large datasets. Use stable identifiers in ForEach. Cache market data (15-min TTL). Compress images to HEIC pre-processing. Profile with Instruments weekly. Annotate with [Rule: Perf]"
+    },
+    {
+      "description": "Accessibility",
+      "rule": "Add accessibility modifiers to all UI elements. Support Dynamic Type scaling. Provide voiceover labels/hints. Test with Accessibility Inspector. Document a11y decisions. Annotate with [Rule: A11y]"
+    },
+    {
+      "description": "Component Architecture",
+      "rule": "Create reusable view modifiers. Extend View for common patterns. Separate View/ViewModel layers. Use PreferenceKey for child-parent communication. Document component APIs. Annotate with [Rule: Components]"
+    },
+    {
+      "description": "Data Flow",
+      "rule": "Use Observation framework for reactivity. Implement async/await for API calls. Validate all inputs with NSDataDetector. Sanitize API responses. Log data transformations. Annotate with [Rule: Data]"
+    },
+    {
+      "description": "Testing",
+      "rule": "Write ViewModel unit tests. Create UI tests for critical flows. Use #Preview macros extensively. Test edge cases (low network, large images). Document test scenarios. Annotate with [Rule: Testing]"
+    },
+    {
+      "description": "Security",
+      "rule": "Store API keys in Keychain. Validate image metadata. Use SecurePropertyWrapper. Implement HTTPS pinning. Audit third-party libs. Document security decisions. Annotate with [Rule: Security]"
+    },
+    {
+      "description": "Project Structure",
+      "rule": "Feature-based modules: /Features/{Pricing,Camera,History}. Flat Xcode groups. Separate test targets. Use Swift Package Manager. Maintain strict asset catalog. Document module boundaries"
+    },
+    {
+      "description": "Code Quality",
+      "rule": "Enforce SwiftLint: 120 chars/line, 25-line funcs. Require guard-let unwrapping. Ban force-unwraps in prod. Use #warning for TODOs. Document complex algorithms"
+    },
+    {
+      "description": "Debugging",
+      "rule": "Add // DEBUG: comments in critical paths. Use os_log(.debug) for API calls. Implement custom Debug views. Track memory usage. Document debugging steps. Annotate with [Rule: Debug]"
+    },
+    {
+      "description": "AI-Driven Development",
+      "rule": "1. Pre-implementation AI Review: Submit design docs for AI review. 2. Implementation AI Check: Get AI approval on complex algorithms. 3. Post-implementation AI Audit: Security and performance review. Annotate with [Rule: AIDev]"
+    },
+    {
+      "description": "API Integration",
+      "rule": "Wrap GPT-4o in AsyncThrowingStream. Use Combine for real-time updates. Implement exponential backoff. Validate with Protobuf schemas. Cache common product types. Document API patterns"
+    },
+    {
+      "description": "SwiftUI Patterns",
+      "rule": "Prefer declarative syntax. Use ViewBuilder composition. Implement custom EnvironmentKeys. Optimize redraw cycles with Equatable. Document view lifecycle. Use matchedGeometryEffect for transitions"
+    },
+    {
+      "description": "Error Handling",
+      "rule": "Present user-friendly errors. Log technical details to console. Implement retry flows. Use Result types for async. Monitor via Crashlytics. Document error scenarios"
+    },
+    {
+      "description": "Development Workflow",
+      "rule": "1. Feature Planning: Submit to AI for architecture review. 2. Implementation: Get AI approval for complex logic. 3. Testing: AI reviews test coverage. 4. Documentation: AI validates completeness. Annotate with [Rule: Workflow]"
+    },
+    {
+      "description": "Documentation Standards",
+      "rule": "Use DocC format. Include code examples. Document architecture decisions. Maintain CHANGELOG.md. Get AI review for docs. Update README.md weekly. Annotate with [Rule: Docs]"
+    },
+    {
+      "description": "AI Security Review",
+      "rule": "1. Submit security-critical code for AI audit. 2. Get AI approval for auth flows. 3. AI reviews encryption implementation. 4. Document AI security recommendations. Annotate with [Rule: AISec]"
+    }
+  ],
+  "development_workflow": {
+    "feature_development": {
+      "planning": {
+        "steps": [
+          "Submit feature spec to AI for architecture review",
+          "Get AI approval on data flow design",
+          "Document AI architecture recommendations"
+        ]
+      },
+      "implementation": {
+        "steps": [
+          "Get AI review for complex algorithms",
+          "Submit security-critical code for AI audit",
+          "Document AI implementation feedback"
+        ]
+      },
+      "testing": {
+        "steps": [
+          "AI reviews test coverage",
+          "Get AI approval on edge cases",
+          "Document AI testing recommendations"
+        ]
+      },
+      "documentation": {
+        "steps": [
+          "AI validates documentation completeness",
+          "Get AI review on API documentation",
+          "Update development guides with AI insights"
+        ]
+      }
+    },
+    "code_review": {
+      "ai_review": {
+        "required_checks": [
+          "Architecture consistency",
+          "Security best practices",
+          "Performance optimization",
+          "Error handling completeness",
+          "Documentation quality"
+        ]
+      },
+      "human_review": {
+        "focus_areas": [
+          "Business logic validation",
+          "User experience considerations",
+          "Team coding standards",
+          "Project requirements alignment"
+        ]
+      }
+    },
+    "security_workflow": {
+      "ai_security_audit": {
+        "checks": [
+          "API key management",
+          "Data encryption",
+          "Authentication flows",
+          "Input validation",
+          "Network security"
+        ]
+      }
+    }
+  },
+  "project_metadata": {
+    "name": "PriceWise",
+    "description": "iOS app for determining fair market value of items using AI multimodal capabilities",
+    "version": "1.0.0",
+    "platform": "iOS 14.0+",
+    "primary_language": "Swift 5.x",
+    "architecture": "MVVM"
+  },
+  "tech_stack": {
+    "frontend": {
+      "framework": "SwiftUI",
+      "state_management": "@Observable, @State, @Environment",
+      "ui_components": ["SwiftUI native", "Custom components"],
+      "animations": ["SwiftUI animations", "matchedGeometryEffect"]
+    },
+    "backend_services": {
+      "authentication": "Firebase Auth",
+      "database": "Cloud Firestore",
+      "storage": "Firebase Storage",
+      "ai_services": {
+        "image_analysis": {
+          "provider": "OpenAI",
+          "model": "gpt-4o",
+          "features": ["multimodal", "structured output"]
+        },
+        "market_data": {
+          "provider": "Tavily",
+          "features": ["search", "price analysis"]
+        }
+      }
+    }
+  },
+  "development_standards": {
+    "code_style": {
+      "line_length": 120,
+      "function_length": 25,
+      "naming_conventions": {
+        "files": {
+          "views": "{Name}View.swift",
+          "view_models": "{Name}ViewModel.swift",
+          "models": "{Name}.swift",
+          "services": "{Name}Service.swift",
+          "tests": "{Name}Tests.swift"
+        },
+        "variables": {
+          "private": "_prefixWithUnderscore",
+          "constants": "UPPERCASE_WITH_UNDERSCORE",
+          "instance": "camelCase"
+        }
+      }
+    },
+    "general_rules": {
+      "logging": {
+        "required": true,
+        "implementation": "Use termcolor for step-by-step user information",
+        "file_operations": "Always use encoding='utf-8' for file operations"
+      },
+      "variables": {
+        "major_variables": {
+          "placement": "Top of script",
+          "naming": "UPPERCASE",
+          "exceptions": "User input variables unless specified"
+        },
+        "api_keys": {
+          "storage": "Use system variables with os.getenv()",
+          "forbidden": "No .env files"
+        }
+      },
+      "error_handling": {
+        "required": true,
+        "implementation": "Use try-except blocks with descriptive prints",
+        "logging": "Include actual error in output"
+      },
+      "architecture": {
+        "principle": "Separation of concerns",
+        "requirements": [
+          "Modular design",
+          "Clear component boundaries",
+          "Independent feature modules"
+        ]
+      }
+    },
+    "ai_development_workflow": {
+      "thinking_steps": {
+        "order": [
+          "Think step by step",
+          "Analyze any provided visuals",
+          "Understand the request fully",
+          "Create comprehensive plan",
+          "Critique the plan",
+          "Refine based on critique",
+          "Execute with security focus"
+        ]
+      },
+      "security_expertise": {
+        "focus_areas": [
+          "Code security",
+          "Data protection",
+          "API security",
+          "User privacy"
+        ],
+        "requirements": [
+          "Consider vulnerabilities",
+          "Implement security best practices",
+          "Document security decisions"
+        ]
+      },
+      "code_generation": {
+        "priorities": [
+          "Security first",
+          "Efficiency",
+          "Well-structured code",
+          "Maintainability"
+        ],
+        "requirements": [
+          "Adhere to project specifications",
+          "Follow security guidelines",
+          "Consider edge cases"
+        ]
+      }
+    },
+    "api_integration": {
+      "openai": {
+        "endpoint": "Use chat.completions.create",
+        "forbidden": "Do not use chatcompletions endpoint"
+      },
+      "requirements": {
+        "documentation": "Required for all integrations",
+        "error_handling": "Comprehensive error handling",
+        "rate_limiting": "Implement for all external APIs",
+        "security": "Secure all API keys and credentials"
+      }
+    },
+    "dependencies": {
+      "management": {
+        "tool": "Swift Package Manager",
+        "requirements_file": {
+          "required": true,
+          "version_numbers": "Do not specify versions",
+          "updates": "Regular security audits"
+        }
+      }
+    }
+  }
+}
